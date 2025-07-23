@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>诗经取名 | The Book of Songs Name Generator</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+        h1, h3 {
+            color: #333;
+            text-align: left;
+            margin-bottom: 1.5rem;
+        }
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #666;
+            text-align: left;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .result {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 5px;
+            background: #f8f9fa;
+            display: none;
+            text-align: left;
+        }
+        .result.show {
+            display: block;
+        }
+        .section-header {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        .source-citation {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #ddd;
+        }
+        .character-meaning {
+            font-size: 0.95rem;
+            color: #444;
+            margin: 1rem 0;
+        }
+        .chinese-name {
+            font-size: 2.5rem;
+            margin: 1rem 0;
+        }
+        .note {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>诗经取名 | The Book of Songs Name Generator</h1>
+        <div class="input-group">
+            <label for="englishName">输入英文名 | Enter your English name:</label>
+            <input type="text" id="englishName" placeholder="例如：John">
+        </div>
+        <button onclick="convertName()">生成中文名 | Generate Chinese Name</button>
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        // Characters from 诗经 with their sources
+        const nameMapping = {
+            'a': [
+                { char: '安', source: '诗经·小雅·斯干', meaning: '安宁、平安' },
+                { char: '雅', source: '诗经·大雅·文王', meaning: '优雅、高尚' },
+                { char: '爱', source: '诗经·大雅·抑', meaning: '慈爱、喜爱' }
+            ],
+            'b': [
+                { char: '柏', source: '诗经·小雅·白华', meaning: '柏树、坚贞' },
+                { char: '邦', source: '诗经·周颂·清庙', meaning: '国家、邦土' },
+                { char: '彬', source: '诗经·大雅·抑', meaning: '文质彬彬' }
+            ],
+            'c': [
+                { char: '春', source: '诗经·召南·草虫', meaning: '春天、生机' },
+                { char: '辰', source: '诗经·商颂·长发', meaning: '时辰、晨星' },
+                { char: '采', source: '诗经·周南·关雎', meaning: '采集、采撷' }
+            ],
+            'd': [
+                { char: '德', source: '诗经·大雅·文王', meaning: '德行、品德' },
+                { char: '棣', source: '诗经·卫风·硕人', meaning: '棣棠花' },
+                { char: '笃', source: '诗经·小雅·斯干', meaning: '笃实、忠厚' }
+            ],
+            'e': [
+                { char: '恩', source: '诗经·大雅·抑', meaning: '恩惠、恩德' },
+                { char: '尔', source: '诗经·邶风·击鼓', meaning: '你、美好' }
+            ],
+            'f': [
+                { char: '芳', source: '诗经·郑风·风雨', meaning: '芬芳、美好' },
+                { char: '凤', source: '诗经·商颂·玄鸟', meaning: '凤凰' },
+                { char: '风', source: '诗经·周南·关雎', meaning: '风气、风度' }
+            ],
+            'g': [
+                { char: '光', source: '诗经·大雅·文王', meaning: '光明、光辉' },
+                { char: '庚', source: '诗经·豳风·七月', meaning: '庚金、刚健' }
+            ],
+            'h': [
+                { char: '华', source: '诗经·小雅·白华', meaning: '华美、繁荣' },
+                { char: '怀', source: '诗经·邶风·柏舟', meaning: '怀念、心怀' },
+                { char: '和', source: '诗经·小雅·天保', meaning: '和睦、祥和' }
+            ],
+            'i': [
+                { char: '仪', source: '诗经·郑风·女曰鸡鸣', meaning: '仪态、礼仪' },
+                { char: '懿', source: '诗经·大雅·思齐', meaning: '美好、美德' }
+            ],
+            'j': [
+                { char: '锦', source: '诗经·卫风·硕人', meaning: '锦绣' },
+                { char: '集', source: '诗经·小雅·鹤鸣', meaning: '聚集、集合' },
+                { char: '君', source: '诗经·周南·关雎', meaning: '君子、贵族' }
+            ],
+            'k': [
+                { char: '康', source: '诗经·大雅·既醉', meaning: '康宁、安康' },
+                { char: '恺', source: '诗经·小雅·节南山', meaning: '恺悌、和乐' }
+            ],
+            'l': [
+                { char: '兰', source: '诗经·卫风·淇奥', meaning: '兰花、芳香' },
+                { char: '礼', source: '诗经·大雅·文王', meaning: '礼节、礼仪' },
+                { char: '良', source: '诗经·周南·关雎', meaning: '善良、美好' }
+            ],
+            'm': [
+                { char: '明', source: '诗经·大雅·文王', meaning: '明亮、聪明' },
+                { char: '敏', source: '诗经·大雅·抑', meaning: '敏捷、聪敏' },
+                { char: '茂', source: '诗经·小雅·南山有台', meaning: '茂盛、繁茂' }
+            ],
+            'n': [
+                { char: '宁', source: '诗经·小雅·天保', meaning: '安宁、平静' },
+                { char: '南', source: '诗经·召南·草虫', meaning: '南方、温暖' }
+            ],
+            'o': [
+                { char: '欧', source: '诗经·小雅·白华', meaning: '偶、配对' }
+            ],
+            'p': [
+                { char: '平', source: '诗经·小雅·天保', meaning: '平安、平和' },
+                { char: '佩', source: '诗经·卫风·硕人', meaning: '佩玉' }
+            ],
+            'q': [
+                { char: '琴', source: '诗经·卫风·淇奥', meaning: '琴瑟' },
+                { char: '清', source: '诗经·周颂·清庙', meaning: '清澈、清明' },
+                { char: '庆', source: '诗经·大雅·文王', meaning: '庆贺、喜庆' }
+            ],
+            'r': [
+                { char: '如', source: '诗经·周南·关雎', meaning: '如玉' },
+                { char: '瑞', source: '诗经·大雅·文王', meaning: '祥瑞' }
+            ],
+            's': [
+                { char: '诗', source: '诗经·大雅·文王', meaning: '诗歌、文采' },
+                { char: '颂', source: '诗经·周颂·清庙', meaning: '颂扬、赞美' },
+                { char: '思', source: '诗经·邶风·柏舟', meaning: '思考、思念' }
+            ],
+            't': [
+                { char: '棠', source: '诗经·卫风·硕人', meaning: '棠棣' },
+                { char: '堂', source: '诗经·小雅·天保', meaning: '堂皇' }
+            ],
+            'u': [
+                { char: '宇', source: '诗经·大雅·文王', meaning: '宇宙' }
+            ],
+            'v': [
+                { char: '文', source: '诗经·大雅·文王', meaning: '文采、文化' },
+                { char: '温', source: '诗经·小雅·天保', meaning: '温和、温暖' }
+            ],
+            'w': [
+                { char: '文', source: '诗经·大雅·文王', meaning: '文采、文化' },
+                { char: '威', source: '诗经·大雅·抑', meaning: '威仪、威严' }
+            ],
+            'x': [
+                { char: '祥', source: '诗经·大雅·文王', meaning: '祥瑞、吉祥' },
+                { char: '心', source: '诗经·邶风·柏舟', meaning: '心灵、心志' }
+            ],
+            'y': [
+                { char: '雅', source: '诗经·大雅·文王', meaning: '优雅、高尚' },
+                { char: '玉', source: '诗经·周南·关雎', meaning: '玉石、美好' },
+                { char: '颜', source: '诗经·卫风·硕人', meaning: '容颜' }
+            ],
+            'z': [
+                { char: '子', source: '诗经·周南·关雎', meaning: '君子' },
+                { char: '正', source: '诗经·大雅·文王', meaning: '正直、端正' },
+                { char: '志', source: '诗经·大雅·抑', meaning: '志向、意志' }
+            ]
+        };
+
+        function convertName() {
+            const englishName = document.getElementById('englishName').value.toLowerCase().trim();
+            if (!englishName) {
+                alert('请输入英文名 | Please enter your English name');
+                return;
+            }
+
+            let chineseName = [];
+            const firstChar = englishName[0];
+            const secondChar = englishName[1] || firstChar;
+            
+            if (nameMapping[firstChar]) {
+                chineseName.push(nameMapping[firstChar][Math.floor(Math.random() * nameMapping[firstChar].length)]);
+            }
+            if (nameMapping[secondChar]) {
+                chineseName.push(nameMapping[secondChar][Math.floor(Math.random() * nameMapping[secondChar].length)]);
+            }
+
+            if (chineseName.length === 0) {
+                chineseName = [
+                    { char: '文', source: '诗经·大雅·文王', meaning: '文采、文化' },
+                    { char: '雅', source: '诗经·大雅·文王', meaning: '优雅、高尚' }
+                ];
+            }
+
+            const result = document.getElementById('result');
+            result.innerHTML = `
+                <h3>为您推荐的中文名 | Your Chinese Name Suggestion</h3>
+                <div class="chinese-name">${chineseName.map(c => c.char).join('')}</div>
+                <div class="character-meaning">
+                    <div class="section-header">字义诠释 | Character Meanings</div>
+                    ${chineseName.map((c, i) => `
+                        ${c.char}：${c.meaning} | ${getEnglishMeaning(c.meaning)}
+                    `).join('<br>')}
+                </div>
+                <div class="source-citation">
+                    <div class="section-header">出处典源：诗经 | Sources from The Book of Songs</div>
+                    ${chineseName.map((c, i) => `
+                        ${c.char}：${c.source} | ${getEnglishSource(c.source)}
+                    `).join('<br>')}
+                </div>
+                <div class="note">
+                    <div class="section-header">注解 | Note</div>
+                    此名采自《诗经》，中国最古老的诗歌总集，历经数千年传承。每个字都蕴含深厚的文化内涵与历史意义。<br>
+                    These characters are selected from The Book of Songs, the oldest existing collection of Chinese poetry. 
+                    Each character carries profound cultural heritage and historical significance spanning thousands of years.
+                </div>
+            `;
+            result.classList.add('show');
+        }
+
+        // 添加英文释义转换函数
+        function getEnglishMeaning(chineseMeaning) {
+            const meaningMap = {
+                '安宁、平安': 'Peace and tranquility',
+                '优雅、高尚': 'Elegance and nobility',
+                '慈爱、喜爱': 'Love and affection',
+                '柏树、坚贞': 'Cypress, faithfulness',
+                '国家、邦土': 'Nation, homeland',
+                '文质彬彬': 'Refined and courteous',
+                '春天、生机': 'Spring, vitality',
+                '时辰、晨星': 'Morning star, time',
+                '采集、采撷': 'To gather, to select',
+                '德行、品德': 'Virtue, moral character',
+                '棣棠花': 'Wild rose flower',
+                '笃实、忠厚': 'Sincere and honest',
+                '恩惠、恩德': 'Grace and kindness',
+                '你、美好': 'You, beautiful',
+                '芬芳、美好': 'Fragrant and beautiful',
+                '凤凰': 'Phoenix',
+                '风气、风度': 'Demeanor, grace',
+                '光明、光辉': 'Bright and radiant',
+                '庚金、刚健': 'Metal element, strength',
+                '华美、繁荣': 'Splendor and prosperity',
+                '怀念、心怀': 'To cherish, mindful',
+                '和睦、祥和': 'Harmony and peace',
+                '仪态、礼仪': 'Etiquette and manners',
+                '美好、美德': 'Beauty and virtue',
+                '锦绣': 'Splendid brocade',
+                '聚集、集合': 'To gather, to assemble',
+                '君子、贵族': 'Noble person',
+                '康宁、安康': 'Health and peace',
+                '恺悌、和乐': 'Kind and joyful',
+                '兰花、芳香': 'Orchid, fragrance',
+                '礼节、礼仪': 'Propriety and etiquette',
+                '善良、美好': 'Kind and beautiful',
+                '明亮、聪明': 'Bright and intelligent',
+                '敏捷、聪敏': 'Quick and clever',
+                '茂盛、繁茂': 'Flourishing and abundant',
+                '安宁、平静': 'Peaceful and calm',
+                '南方、温暖': 'South, warmth',
+                '偶、配对': 'Pair, matching',
+                '平安、平和': 'Peace and harmony',
+                '佩玉': 'Jade pendant',
+                '琴瑟': 'Musical instruments',
+                '清澈、清明': 'Clear and bright',
+                '庆贺、喜庆': 'Celebration, joy',
+                '如玉': 'Like jade',
+                '祥瑞': 'Auspicious',
+                '诗歌、文采': 'Poetry and literary talent',
+                '颂扬、赞美': 'Praise and admiration',
+                '思考、思念': 'To think, to miss',
+                '棠棣': 'Crabapple flowers',
+                '堂皇': 'Grand and magnificent',
+                '宇宙': 'Universe',
+                '文采、文化': 'Literary talent, culture',
+                '温和、温暖': 'Gentle and warm',
+                '威仪、威严': 'Dignity and majesty',
+                '祥瑞、吉祥': 'Auspicious and blessed',
+                '心灵、心志': 'Mind and aspiration',
+                '玉石、美好': 'Jade, beauty',
+                '容颜': 'Countenance',
+                '君子': 'Noble person',
+                '正直、端正': 'Upright and proper',
+                '志向、意志': 'Aspiration and will'
+            };
+            return meaningMap[chineseMeaning] || chineseMeaning;
+        }
+
+        // 添加英文出处转换函数
+        function getEnglishSource(source) {
+            const sourceMap = {
+                '诗经·小雅·斯干': 'Lesser Court Hymns · Si Gan',
+                '诗经·大雅·文王': 'Major Court Hymns · King Wen',
+                '诗经·大雅·抑': 'Major Court Hymns · Restraint',
+                '诗经·小雅·白华': 'Lesser Court Hymns · White Flower',
+                '诗经·周颂·清庙': 'Zhou Praise Songs · Pure Temple',
+                '诗经·召南·草虫': 'Odes of Shao · Insects',
+                '诗经·商颂·长发': 'Shang Praise Songs · Long Hair',
+                '诗经·周南·关雎': 'Odes of Zhou · Fish Hawks',
+                '诗经·卫风·硕人': 'Odes of Wei · Great Lady',
+                '诗经·邶风·击鼓': 'Odes of Bei · Beating the Drums',
+                '诗经·郑风·风雨': 'Odes of Zheng · Wind and Rain',
+                '诗经·商颂·玄鸟': 'Shang Praise Songs · Dark Bird',
+                '诗经·豳风·七月': 'Odes of Bin · Seventh Month',
+                '诗经·邶风·柏舟': 'Odes of Bei · Cypress Boat',
+                '诗经·小雅·天保': 'Lesser Court Hymns · Heaven\'s Protection',
+                '诗经·郑风·女曰鸡鸣': 'Odes of Zheng · The Lady Says the Cock Crows',
+                '诗经·大雅·思齐': 'Major Court Hymns · Thoughtful and Equal',
+                '诗经·小雅·鹤鸣': 'Lesser Court Hymns · Crane\'s Call',
+                '诗经·大雅·既醉': 'Major Court Hymns · Already Drunk',
+                '诗经·小雅·节南山': 'Lesser Court Hymns · Southern Mountain',
+                '诗经·卫风·淇奥': 'Odes of Wei · Banks of Qi',
+                '诗经·小雅·南山有台': 'Lesser Court Hymns · Tower on South Mountain'
+            };
+            return sourceMap[source] || source;
+        }
+    </script>
+</body>
+</html>
